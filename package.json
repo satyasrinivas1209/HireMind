@@ -1,0 +1,20 @@
+{
+  "name": "hiremind",
+  "version": "1.0.0",
+  "description": "HireMind — AI-Driven Talent Intelligence & Workforce Analytics Platform",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "node start.js",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+  },
+  "keywords": [
+    "talent-intelligence",
+    "resume-screening",
+    "hr-analytics",
+    "mern",
+    "flask"
+  ],
+  "author": "",
+  "license": "ISC"
+}

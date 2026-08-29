@@ -1,0 +1,72 @@
+# Render Blueprint deployment configuration for HireMind
+# To deploy to Render:
+# 1. Connect your repository in Render Dashboard.
+# 2. Select "Blueprint" deployment.
+# 3. Supply your MONGO_URI string when prompted.
+
+services:
+  # 1. Python ML Microservice
+  - type: web
+    name: hiremind-ml-service
+    env: python
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: ML_SERVICE_API_KEY
+        generateValue: true
+
+  # 2. Node.js Express Backend API
+  - type: web
+    name: hiremind-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1h
+      - key: COOKIE_NAME
+        value: hiremind_token
+      - key: GMAIL_TOKEN_ENC_KEY
+        generateValue: true
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: hiremind-ml-service
+          property: host
+      - key: ML_SERVICE_API_KEY
+        fromService:
+          type: web
+          name: hiremind-ml-service
+          envVarKey: ML_SERVICE_API_KEY
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: hiremind-frontend
+          property: url
+
+  # 3. React + Vite Frontend (Static Site)
+  - type: web
+    name: hiremind-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: hiremind-backend
+          property: url
+          append: /api
