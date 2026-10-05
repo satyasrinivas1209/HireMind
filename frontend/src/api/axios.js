@@ -1,14 +1,21 @@
 import axios from "axios";
 
 const getBaseURL = () => {
-  let url = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  let url = import.meta.env.VITE_API_URL || "https://hiremind-backend-hmvc.onrender.com/api";
   url = url.trim().replace(/\/+$/, "");
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    url = "https://" + url;
+
+  // Fix any incomplete hostname without domain (e.g. hiremind-backend-hmvc or hiremind-backend)
+  if (url.includes("hiremind-backend") && !url.includes(".onrender.com")) {
+    url = "https://hiremind-backend-hmvc.onrender.com/api";
+  } else {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "https://" + url;
+    }
+    if (!url.endsWith("/api")) {
+      url += "/api";
+    }
   }
-  if (!url.endsWith("/api")) {
-    url += "/api";
-  }
+
   return url;
 };
 
