@@ -9,6 +9,7 @@ services:
   - type: web
     name: hiremind-ml-service
     runtime: python
+    plan: free
     rootDir: ml-service
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
@@ -22,6 +23,7 @@ services:
   - type: web
     name: hiremind-backend
     runtime: node
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
@@ -60,6 +62,7 @@ services:
   - type: web
     name: hiremind-frontend
     runtime: static
+    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
