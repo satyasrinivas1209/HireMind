@@ -8,7 +8,7 @@ services:
   # 1. Python ML Microservice
   - type: web
     name: hiremind-ml-service
-    env: python
+    runtime: python
     rootDir: ml-service
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
@@ -21,7 +21,7 @@ services:
   # 2. Node.js Express Backend API
   - type: web
     name: hiremind-backend
-    env: node
+    runtime: node
     rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
@@ -52,13 +52,14 @@ services:
           envVarKey: ML_SERVICE_API_KEY
       - key: FRONTEND_URL
         fromService:
-          type: static
+          type: web
           name: hiremind-frontend
           property: url
 
   # 3. React + Vite Frontend (Static Site)
-  - type: static
+  - type: web
     name: hiremind-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
