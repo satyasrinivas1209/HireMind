@@ -51,10 +51,7 @@ services:
           name: hiremind-ml-service
           envVarKey: ML_SERVICE_API_KEY
       - key: FRONTEND_URL
-        fromService:
-          type: web
-          name: hiremind-frontend
-          property: host
+        value: https://hiremind-frontend-gcki.onrender.com
 
   # 3. React + Vite Frontend (Static Site)
   - type: web
@@ -69,7 +66,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: hiremind-backend
-          property: host
+        value: https://hiremind-backend-hmvc.onrender.com/api

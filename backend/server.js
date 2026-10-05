@@ -31,7 +31,12 @@ if (!frontendUrl.startsWith("http://") && !frontendUrl.startsWith("https://")) {
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin === frontendUrl || origin.endsWith(".onrender.com")) {
+      if (
+        !origin ||
+        origin === frontendUrl ||
+        origin === "https://hiremind-frontend-gcki.onrender.com" ||
+        origin.endsWith(".onrender.com")
+      ) {
         callback(null, true);
       } else {
         callback(null, true);
