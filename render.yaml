@@ -14,8 +14,6 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
     envVars:
-      - key: PORT
-        value: 5001
       - key: ML_SERVICE_API_KEY
         generateValue: true
 
@@ -28,8 +26,6 @@ services:
     buildCommand: npm install
     startCommand: node server.js
     envVars:
-      - key: PORT
-        value: 5000
       - key: NODE_ENV
         value: production
       - key: MONGO_URI
@@ -62,7 +58,6 @@ services:
   - type: web
     name: hiremind-frontend
     runtime: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
