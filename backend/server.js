@@ -97,10 +97,31 @@ app.use((err, req, res, next) => {
   return res.status(500).json({ message: "An unexpected server error occurred." });
 });
 
+const User = require("./models/User");
+
+const seedDefaultAdmin = async () => {
+  try {
+    const adminEmail = "admin@hiremind.com";
+    const existingAdmin = await User.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      await User.create({
+        name: "HireMind Admin",
+        email: adminEmail,
+        password: "ChangeMe123!",
+        role: "Admin",
+      });
+      console.log(`[Bootstrap] Created default admin account: ${adminEmail}`);
+    }
+  } catch (err) {
+    console.error("[Bootstrap] Error checking/creating default admin:", err.message);
+  }
+};
+
 const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   await connectDB();
+  await seedDefaultAdmin();
   app.listen(PORT, () => {
     console.log(`[HireMind Backend] Running on http://localhost:${PORT}`);
   });
