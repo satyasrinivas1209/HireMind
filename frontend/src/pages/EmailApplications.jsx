@@ -86,7 +86,7 @@ export default function EmailApplications() {
   const handleConnect = () => {
     setConnecting(true);
     toast.loading("Opening secure email authorization…", { id: "nylas-auth" });
-    const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    const apiBase = api.defaults.baseURL.replace(/\/+$/, "");
     window.location.href = `${apiBase}/email/auth`;
   };
 
