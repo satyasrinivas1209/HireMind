@@ -49,7 +49,7 @@ HireMind is fully pre-configured for **Render.com** deployment via `render.yaml`
 
 ## 📋 Default Credentials
 
-- **Admin Account**: `admin@hiremind.com` / `ChangeMe123!`
+- **Admin Account**: `satyasrinivas726@gmail.com` / `ChangeMe123!`
 - **Portal URL**: `http://localhost:5173`
 
 ---

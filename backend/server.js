@@ -101,11 +101,11 @@ const User = require("./models/User");
 
 const seedDefaultAdmin = async () => {
   try {
-    const adminEmail = "admin@hiremind.com";
+    const adminEmail = "satyasrinivas726@gmail.com";
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (!existingAdmin) {
       await User.create({
-        name: "HireMind Admin",
+        name: "Satya Srinivas Admin",
         email: adminEmail,
         password: "ChangeMe123!",
         role: "Admin",
