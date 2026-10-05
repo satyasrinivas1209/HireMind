@@ -67,11 +67,20 @@ const startAuth = async (req, res) => {
   }
 };
 
+const getFrontendUrl = () => {
+  let url = process.env.FRONTEND_URL || "http://localhost:5173";
+  url = url.trim().replace(/\/+$/, "");
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+  return url;
+};
+
 // GET /api/email/callback -> handles Nylas OAuth callback
 const oauthCallback = async (req, res) => {
   try {
     const { code, state, error } = req.query;
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = getFrontendUrl();
 
     if (error || !code || !state) {
       console.warn("[oauthCallback] OAuth callback error or missing params:", error || "missing code/state");

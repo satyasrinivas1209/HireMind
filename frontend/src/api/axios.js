@@ -3,6 +3,9 @@ import axios from "axios";
 const getBaseURL = () => {
   let url = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
   url = url.trim().replace(/\/+$/, "");
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
   if (!url.endsWith("/api")) {
     url += "/api";
   }

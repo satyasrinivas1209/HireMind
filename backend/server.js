@@ -21,9 +21,22 @@ if (process.env.NODE_ENV === "production") {
 // ---- Core middleware ----
 app.disable("x-powered-by");
 app.use(helmet());
+
+let frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+frontendUrl = frontendUrl.trim().replace(/\/+$/, "");
+if (!frontendUrl.startsWith("http://") && !frontendUrl.startsWith("https://")) {
+  frontendUrl = "https://" + frontendUrl;
+}
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || origin === frontendUrl || origin.endsWith(".onrender.com")) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
   })
 );

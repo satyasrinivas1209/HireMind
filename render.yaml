@@ -54,7 +54,7 @@ services:
         fromService:
           type: web
           name: hiremind-frontend
-          property: url
+          property: host
 
   # 3. React + Vite Frontend (Static Site)
   - type: web
@@ -72,4 +72,4 @@ services:
         fromService:
           type: web
           name: hiremind-backend
-          property: url
+          property: host
