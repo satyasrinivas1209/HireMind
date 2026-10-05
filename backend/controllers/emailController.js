@@ -1,227 +1,365 @@
-const { google } = require("googleapis");
+const Nylas = require("nylas");
 const fs = require("fs");
 const path = require("path");
 const User = require("../models/User");
 const Job = require("../models/Job");
 const Resume = require("../models/Resume");
-const { encryptTokens, decryptTokens } = require("../utils/encryption");
-const { runParsingPipeline, verdictFromScore } = require("./resumeController");
+const EmailConnection = require("../models/EmailConnection");
+const { runParsingPipeline } = require("./resumeController");
 const { UPLOAD_DIR } = require("../middleware/upload");
 
-const getOAuthClient = () =>
-  new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI
-  );
-
-const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
-
-// GET /api/email/auth  -> redirects HR user to Google's consent screen
-const startAuth = async (req, res) => {
-  try {
-    const oauth2Client = getOAuthClient();
-    const url = oauth2Client.generateAuthUrl({
-      access_type: "offline",
-      prompt: "consent",
-      scope: SCOPES,
-      state: String(req.user._id), // ties the callback back to the logged-in HR user
-    });
-    return res.redirect(url);
-  } catch (err) {
-    console.error("[startAuth] error:", err.message);
-    return res.status(500).json({ message: "Could not start Gmail authorization." });
+const getNylasClient = () => {
+  const apiKey = process.env.NYLAS_API_KEY;
+  if (!apiKey) {
+    throw new Error("NYLAS_API_KEY environment variable is not configured.");
   }
-};
-
-// GET /api/email/oauth2callback
-const oauthCallback = async (req, res) => {
-  try {
-    const { code, state } = req.query;
-    if (!code || !state) {
-      return res.status(400).send("Missing authorization code.");
-    }
-
-    const oauth2Client = getOAuthClient();
-    const { tokens } = await oauth2Client.getToken(code);
-
-    const user = await User.findById(state);
-    if (!user) {
-      return res.status(404).send("User not found.");
-    }
-
-    const { ciphertext, iv, authTag } = encryptTokens(tokens);
-    user.gmailTokens = ciphertext;
-    user.gmailTokensIV = iv;
-    user.gmailTokensAuthTag = authTag;
-    await user.save();
-
-    return res.redirect(`${process.env.FRONTEND_URL}/email-applications?connected=1`);
-  } catch (err) {
-    console.error("[oauthCallback] error:", err.message);
-    return res.redirect(`${process.env.FRONTEND_URL}/email-applications?error=1`);
-  }
+  return new Nylas({
+    apiKey,
+    apiUri: process.env.NYLAS_API_URI || "https://api.us.nylas.com",
+  });
 };
 
 // GET /api/email/status
 const getStatus = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("+gmailTokens");
-    return res.status(200).json({ connected: Boolean(user.gmailTokens) });
+    const connection = await EmailConnection.findOne({ userId: req.user._id });
+    if (!connection || connection.status !== "connected") {
+      return res.status(200).json({ connected: false });
+    }
+
+    return res.status(200).json({
+      connected: true,
+      email: connection.email,
+      provider: connection.provider || "Email",
+      lastSyncedAt: connection.lastSyncedAt,
+      status: connection.status,
+    });
   } catch (err) {
     console.error("[getStatus] error:", err.message);
-    return res.status(500).json({ message: "Could not check Gmail connection status." });
+    return res.status(500).json({ message: "Could not check email connection status." });
   }
 };
 
-const getAuthenticatedGmailClient = async (userId) => {
-  const user = await User.findById(userId).select(
-    "+gmailTokens +gmailTokensIV +gmailTokensAuthTag"
-  );
-  if (!user || !user.gmailTokens) {
-    return null;
-  }
-
-  const tokens = decryptTokens(user.gmailTokens, user.gmailTokensIV, user.gmailTokensAuthTag);
-  const oauth2Client = getOAuthClient();
-  oauth2Client.setCredentials(tokens);
-
-  // Persist refreshed tokens transparently (never exposed to frontend)
-  oauth2Client.on("tokens", async (newTokens) => {
-    const merged = { ...tokens, ...newTokens };
-    const enc = encryptTokens(merged);
-    user.gmailTokens = enc.ciphertext;
-    user.gmailTokensIV = enc.iv;
-    user.gmailTokensAuthTag = enc.authTag;
-    await user.save();
-  });
-
-  return google.gmail({ version: "v1", auth: oauth2Client });
-};
-
-const decodeBase64Url = (data) => Buffer.from(data, "base64").toString("utf8");
-
-// GET /api/email/fetch — retrieves recent application emails, parses resume attachments
-const fetchApplications = async (req, res) => {
+// GET /api/email/auth -> starts Nylas Hosted OAuth flow
+const startAuth = async (req, res) => {
   try {
-    const gmail = await getAuthenticatedGmailClient(req.user._id);
-    if (!gmail) {
-      return res.status(400).json({ message: "Gmail is not connected. Please connect Gmail first." });
+    const clientId = process.env.NYLAS_CLIENT_ID;
+    const redirectUri = process.env.NYLAS_REDIRECT_URI;
+
+    if (!clientId || !redirectUri) {
+      console.error("[startAuth] Missing NYLAS_CLIENT_ID or NYLAS_REDIRECT_URI");
+      return res.status(500).json({
+        message: "Nylas OAuth configuration is missing on the server.",
+      });
     }
 
-    const { jobId } = req.query;
-    const job = jobId ? await Job.findById(jobId) : await Job.findOne({ isActive: true });
-    if (!job) {
-      return res.status(400).json({ message: "No target job selected or available for matching." });
-    }
-
-    const list = await gmail.users.messages.list({
-      userId: "me",
-      q: "subject:(application OR resume OR job OR cv) has:attachment",
-      maxResults: 15,
+    const nylas = getNylasClient();
+    const authUrl = nylas.auth.urlForOAuth2({
+      clientId,
+      redirectUri,
+      state: String(req.user._id),
     });
 
-    const messages = list.data.messages || [];
-    const applications = [];
+    return res.redirect(authUrl);
+  } catch (err) {
+    console.error("[startAuth] error:", err.message);
+    return res.status(500).json({ message: "Could not start email authorization." });
+  }
+};
+
+// GET /api/email/callback -> handles Nylas OAuth callback
+const oauthCallback = async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+    if (error || !code || !state) {
+      console.warn("[oauthCallback] OAuth callback error or missing params:", error || "missing code/state");
+      return res.redirect(`${frontendUrl}/email-applications?error=1`);
+    }
+
+    const user = await User.findById(state);
+    if (!user) {
+      console.warn("[oauthCallback] User not found for state ID:", state);
+      return res.redirect(`${frontendUrl}/email-applications?error=invalid_user`);
+    }
+
+    const nylas = getNylasClient();
+    const clientSecret = process.env.NYLAS_CLIENT_SECRET || process.env.NYLAS_API_KEY;
+    const response = await nylas.auth.exchangeCodeForToken({
+      clientSecret,
+      clientId: process.env.NYLAS_CLIENT_ID,
+      redirectUri: process.env.NYLAS_REDIRECT_URI,
+      code,
+    });
+
+    const grantId = response.grantId || response.grant_id;
+    const email = (response.email || user.email).toLowerCase();
+    const provider = response.provider || "email";
+
+    if (!grantId) {
+      throw new Error("No grant ID returned from Nylas token exchange.");
+    }
+
+    await EmailConnection.findOneAndUpdate(
+      { userId: user._id },
+      {
+        userId: user._id,
+        grantId,
+        email,
+        provider,
+        status: "connected",
+        processedMessageIds: [], // reset on new connection so initial sync runs clean
+      },
+      { upsert: true, new: true }
+    );
+
+    return res.redirect(`${frontendUrl}/email-applications?connected=true`);
+  } catch (err) {
+    console.error("[oauthCallback] error:", err.message);
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    return res.redirect(`${frontendUrl}/email-applications?error=1`);
+  }
+};
+
+// POST /api/email/sync -> scans inbox for application emails & processes resume attachments
+const syncApplications = async (req, res) => {
+  try {
+    const connection = await EmailConnection.findOne({
+      userId: req.user._id,
+      status: "connected",
+    });
+
+    if (!connection || !connection.grantId) {
+      return res
+        .status(400)
+        .json({ message: "No connected email account found. Please connect your email account." });
+    }
+
+    const { jobId } = req.body || {};
+    const job = jobId ? await Job.findById(jobId) : await Job.findOne({ isActive: true });
+    if (!job) {
+      return res
+        .status(400)
+        .json({ message: "No target job selected or available for application matching." });
+    }
+
+    const nylas = getNylasClient();
+
+    // Retrieve recent messages
+    let messagesResponse;
+    try {
+      messagesResponse = await nylas.messages.list({
+        identifier: connection.grantId,
+        queryParams: {
+          limit: 50,
+        },
+      });
+    } catch (listErr) {
+      console.error("[syncApplications] error fetching messages from Nylas:", listErr.message);
+      return res.status(502).json({
+        message: "Failed to connect to your email provider via Nylas. Please check your connection.",
+      });
+    }
+
+    const messages = messagesResponse.data || messagesResponse || [];
+
+    let emailsScanned = 0;
+    let applicationsFound = 0;
+    let resumesProcessed = 0;
+    let newCandidates = 0;
+    let duplicatesSkipped = 0;
+    let errors = 0;
+
+    const applicationKeywords = [
+      "job application",
+      "application for",
+      "applying for",
+      "resume",
+      "cv",
+      "candidate",
+      "application",
+      "career",
+      "position",
+      "role",
+      "job",
+    ];
+
+    const processedSet = new Set(connection.processedMessageIds || []);
 
     for (const msg of messages) {
-      try {
-        const full = await gmail.users.messages.get({ userId: "me", id: msg.id });
-        const headers = full.data.payload.headers || [];
-        const from = headers.find((h) => h.name === "From")?.value || "Unknown";
-        const subject = headers.find((h) => h.name === "Subject")?.value || "(no subject)";
-        const date = headers.find((h) => h.name === "Date")?.value || null;
+      emailsScanned++;
 
-        const parts = full.data.payload.parts || [];
-        const attachmentPart = parts.find(
-          (p) => p.filename && p.filename.toLowerCase().endsWith(".pdf") && p.body?.attachmentId
-        );
+      const subject = (msg.subject || "").toLowerCase();
+      const bodySnippet = (msg.body || msg.snippet || "").toLowerCase();
+      const attachments = msg.attachments || [];
 
-        if (!attachmentPart) {
-          applications.push({
-            messageId: msg.id,
-            from,
-            subject,
-            date,
-            hasResume: false,
-            skills: [],
-            experience: null,
-            education: [],
-            matchScore: null,
-          });
-          continue;
-        }
+      // Check if message matches recruitment application criteria
+      const matchesKeyword = applicationKeywords.some(
+        (kw) => subject.includes(kw) || bodySnippet.includes(kw)
+      );
 
-        const attachment = await gmail.users.messages.attachments.get({
-          userId: "me",
-          messageId: msg.id,
-          id: attachmentPart.body.attachmentId,
-        });
+      const supportedResumeAttachments = attachments.filter((att) => {
+        const fn = (att.filename || "").toLowerCase();
+        return fn.endsWith(".pdf") || fn.endsWith(".docx") || fn.endsWith(".doc");
+      });
 
-        const buffer = Buffer.from(attachment.data.data, "base64");
-        const tempPath = path.join(UPLOAD_DIR, `gmail-${msg.id}.pdf`);
-        fs.writeFileSync(tempPath, buffer);
+      const isApplicationEmail = matchesKeyword || supportedResumeAttachments.length > 0;
 
-        let parsed;
+      if (!isApplicationEmail) {
+        continue;
+      }
+
+      applicationsFound++;
+
+      if (processedSet.has(msg.id)) {
+        duplicatesSkipped++;
+        continue;
+      }
+
+      let senderEmail = "unknown@candidate.local";
+      let senderName = "Applicant";
+
+      if (Array.isArray(msg.from) && msg.from.length > 0) {
+        senderEmail = msg.from[0].email || senderEmail;
+        senderName = msg.from[0].name || senderEmail;
+      }
+
+      if (supportedResumeAttachments.length === 0) {
+        processedSet.add(msg.id);
+        continue;
+      }
+
+      // Process resume attachments
+      let processedSuccessfully = false;
+      for (const attachment of supportedResumeAttachments) {
+        const safeExt = path.extname(attachment.filename).toLowerCase() || ".pdf";
+        const tempFileName = `nylas-${msg.id}-${Date.now()}${safeExt}`;
+        const tempPath = path.join(UPLOAD_DIR, tempFileName);
+
         try {
-          parsed = await runParsingPipeline({ filePath: tempPath, job });
-        } catch (mlErr) {
-          console.error(`[fetchApplications] ML error for ${msg.id}:`, mlErr.message);
-          fs.unlink(tempPath, () => {});
-          applications.push({
-            messageId: msg.id,
-            from,
-            subject,
-            date,
-            hasResume: true,
-            parseError: true,
-            skills: [],
-            experience: null,
-            education: [],
-            matchScore: null,
+          const fileBytes = await nylas.attachments.downloadBytes({
+            identifier: connection.grantId,
+            attachmentId: attachment.id,
+            queryParams: {
+              messageId: msg.id,
+            },
           });
-          continue;
-        }
 
-        // Persist candidate record from email
-        const emailMatch = from.match(/<(.+)>/);
-        const candidateEmail = emailMatch ? emailMatch[1] : from;
-        const candidateName = from.replace(/<.+>/, "").trim().replace(/"/g, "") || candidateEmail;
+          fs.writeFileSync(tempPath, Buffer.from(fileBytes));
 
-        const existing = await Resume.findOne({ email: candidateEmail, job: job._id });
-        if (!existing) {
-          await Resume.create({
-            candidateName,
-            email: candidateEmail,
+          let parsed;
+          try {
+            parsed = await runParsingPipeline({ filePath: tempPath, job });
+            resumesProcessed++;
+            processedSuccessfully = true;
+          } catch (mlErr) {
+            console.error(`[syncApplications] ML parse error for message ${msg.id}:`, mlErr.message);
+            errors++;
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+            continue;
+          }
+
+          if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+
+          const finalCandidateEmail = parsed.email || senderEmail;
+          const finalCandidateName = parsed.candidateName || senderName;
+
+          const existingCandidate = await Resume.findOne({
+            email: finalCandidateEmail,
             job: job._id,
-            jobTitle: job.title,
-            source: "Gmail",
-            ...parsed,
           });
+
+          if (existingCandidate) {
+            duplicatesSkipped++;
+          } else {
+            await Resume.create({
+              candidateName: finalCandidateName,
+              email: finalCandidateEmail,
+              phone: parsed.phone || "",
+              job: job._id,
+              jobTitle: job.title,
+              source: "Nylas Email",
+              skills: parsed.skills || [],
+              experience: parsed.experience || "Not specified",
+              education: parsed.education || [],
+              matchingSkills: parsed.matchingSkills || [],
+              missingSkills: parsed.missingSkills || [],
+              matchScore: parsed.matchScore || 0,
+              verdict: parsed.verdict || "Low Match",
+            });
+            newCandidates++;
+          }
+        } catch (attErr) {
+          console.error(`[syncApplications] Attachment error for msg ${msg.id}:`, attErr.message);
+          errors++;
+          if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
         }
+      }
 
-        fs.unlink(tempPath, () => {});
-
-        applications.push({
-          messageId: msg.id,
-          from,
-          subject,
-          date,
-          hasResume: true,
-          ...parsed,
-        });
-      } catch (innerErr) {
-        console.error(`[fetchApplications] error processing message ${msg.id}:`, innerErr.message);
+      if (processedSuccessfully) {
+        processedSet.add(msg.id);
       }
     }
 
-    return res.status(200).json({ applications, jobUsedForMatching: job.title });
-  } catch (err) {
-    console.error("[fetchApplications] error:", err.message);
-    return res.status(502).json({
-      message: "Could not fetch Gmail applications. Please reconnect Gmail and try again.",
+    // Save updated connection stats
+    connection.processedMessageIds = Array.from(processedSet);
+    connection.lastSyncedAt = new Date();
+    await connection.save();
+
+    // Fetch candidate records created from email sync
+    const importedResumes = await Resume.find({
+      job: job._id,
+    })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    return res.status(200).json({
+      emailsScanned,
+      applicationsFound,
+      resumesProcessed,
+      newCandidates,
+      duplicatesSkipped,
+      errors,
+      jobUsedForMatching: job.title,
+      applications: importedResumes,
     });
+  } catch (err) {
+    console.error("[syncApplications] error:", err.message);
+    return res.status(500).json({ message: "Could not sync applications. Please try again." });
   }
 };
 
-module.exports = { startAuth, oauthCallback, getStatus, fetchApplications };
+// POST /api/email/disconnect -> disconnects Nylas email integration securely
+const disconnectEmail = async (req, res) => {
+  try {
+    const connection = await EmailConnection.findOne({ userId: req.user._id });
+    if (!connection) {
+      return res.status(200).json({ message: "No active email connection to disconnect." });
+    }
+
+    try {
+      const nylas = getNylasClient();
+      await nylas.grants.destroy({ identifier: connection.grantId });
+    } catch (nylasErr) {
+      console.warn("[disconnectEmail] Could not revoke grant at Nylas:", nylasErr.message);
+    }
+
+    connection.status = "disconnected";
+    await connection.save();
+
+    return res.status(200).json({ message: "Email account disconnected successfully." });
+  } catch (err) {
+    console.error("[disconnectEmail] error:", err.message);
+    return res.status(500).json({ message: "Could not disconnect email connection." });
+  }
+};
+
+module.exports = {
+  startAuth,
+  oauthCallback,
+  getStatus,
+  syncApplications,
+  fetchApplications: syncApplications,
+  disconnectEmail,
+};

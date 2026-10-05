@@ -14,6 +14,10 @@ const emailRoutes = require("./routes/emailRoutes");
 
 const app = express();
 
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 // ---- Core middleware ----
 app.disable("x-powered-by");
 app.use(helmet());

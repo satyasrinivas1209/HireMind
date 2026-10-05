@@ -2,7 +2,10 @@ const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 
-const ML_BASE_URL = process.env.ML_SERVICE_URL || "http://localhost:5001";
+let ML_BASE_URL = process.env.ML_SERVICE_URL || "http://localhost:5001";
+if (!ML_BASE_URL.startsWith("http://") && !ML_BASE_URL.startsWith("https://")) {
+  ML_BASE_URL = `http://${ML_BASE_URL}`;
+}
 const ML_API_KEY = process.env.ML_SERVICE_API_KEY;
 
 const mlHeaders = () => ({ "x-internal-api-key": ML_API_KEY });

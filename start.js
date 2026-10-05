@@ -2,52 +2,34 @@ const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-const runService = (name, command, args, cwd, env = {}) => {
-  console.log(`[HireMind] Starting ${name}…`);
-  const proc = spawn(command, args, {
-    cwd,
-    stdio: "inherit",
-    shell: true,
-    env: { ...process.env, ...env },
-  });
+const rootDir = __dirname;
+const mlDir = path.join(rootDir, "ml-service");
+const backendDir = path.join(rootDir, "backend");
+const frontendDir = path.join(rootDir, "frontend");
 
-  proc.on("error", (err) => {
-    console.error(`[HireMind] Error starting ${name}:`, err.message);
-  });
+let pythonCmd = "python app.py";
+if (process.platform === "win32") {
+  const venvPy = path.join(mlDir, "venv", "Scripts", "python.exe");
+  if (fs.existsSync(venvPy)) pythonCmd = `${venvPy} app.py`;
+} else {
+  const venvPy = path.join(mlDir, "venv", "bin", "python");
+  if (fs.existsSync(venvPy)) pythonCmd = `${venvPy} app.py`;
+}
 
-  proc.on("exit", (code) => {
-    if (code !== 0 && code !== null) {
-      console.warn(`[HireMind] ${name} exited with code ${code}`);
-    }
-  });
+console.log("[HireMind] Starting ML Service (Port 5001)…");
+spawn(process.platform === "win32" ? "cmd.exe" : "/bin/sh", [process.platform === "win32" ? "/c" : "-c", pythonCmd], {
+  cwd: mlDir,
+  stdio: "inherit",
+});
 
-  return proc;
-};
+console.log("[HireMind] Starting Backend API (Port 5000)…");
+spawn(process.platform === "win32" ? "cmd.exe" : "/bin/sh", [process.platform === "win32" ? "/c" : "-c", "node server.js"], {
+  cwd: backendDir,
+  stdio: "inherit",
+});
 
-const main = () => {
-  const rootDir = __dirname;
-  const mlDir = path.join(rootDir, "ml-service");
-  const backendDir = path.join(rootDir, "backend");
-  const frontendDir = path.join(rootDir, "frontend");
-
-  // Determine python executable path
-  let pythonCmd = "python";
-  if (process.platform === "win32") {
-    const venvPy = path.join(mlDir, "venv", "Scripts", "python.exe");
-    if (fs.existsSync(venvPy)) pythonCmd = `"${venvPy}"`;
-  } else {
-    const venvPy = path.join(mlDir, "venv", "bin", "python");
-    if (fs.existsSync(venvPy)) pythonCmd = `"${venvPy}"`;
-  }
-
-  // 1. ML Service (Port 5001)
-  runService("ML Service (Port 5001)", pythonCmd, ["app.py"], mlDir);
-
-  // 2. Backend Service (Port 5000)
-  runService("Backend API (Port 5000)", "node", ["server.js"], backendDir);
-
-  // 3. Frontend Dev Server (Port 5173)
-  runService("Frontend UI (Port 5173)", "npm", ["run", "dev"], frontendDir);
-};
-
-main();
+console.log("[HireMind] Starting Frontend UI (Port 5173)…");
+spawn(process.platform === "win32" ? "cmd.exe" : "/bin/sh", [process.platform === "win32" ? "/c" : "-c", "npm run dev"], {
+  cwd: frontendDir,
+  stdio: "inherit",
+});

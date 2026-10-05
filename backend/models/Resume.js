@@ -29,7 +29,11 @@ const resumeSchema = new mongoose.Schema(
       default: "Pending",
     },
 
-    source: { type: String, enum: ["Manual Upload", "Gmail"], default: "Manual Upload" },
+    source: {
+      type: String,
+      enum: ["Manual Upload", "Gmail", "Nylas Email", "Email"],
+      default: "Manual Upload",
+    },
       sampleData: { type: Boolean, default: false },
     filePath: { type: String },
   },
