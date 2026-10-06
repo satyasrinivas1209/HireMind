@@ -32,13 +32,32 @@ const getNylasClient = () => {
   });
 };
 
+const getEffectiveConnection = async (userId) => {
+  // 1. Direct connection for this user
+  let connection = await EmailConnection.findOne({ userId, status: "connected" });
+  if (connection) return connection;
+
+  // 2. Check if an Admin user has an active connection
+  const adminUser = await User.findOne({ role: "Admin" });
+  if (adminUser) {
+    connection = await EmailConnection.findOne({ userId: adminUser._id, status: "connected" });
+    if (connection) return connection;
+  }
+
+  // 3. Fallback to any active system-wide email connection
+  connection = await EmailConnection.findOne({ status: "connected" });
+  return connection;
+};
+
 // GET /api/email/status
 const getStatus = async (req, res) => {
   try {
-    const connection = await EmailConnection.findOne({ userId: req.user._id });
+    const connection = await getEffectiveConnection(req.user._id);
     if (!connection || connection.status !== "connected") {
       return res.status(200).json({ connected: false });
     }
+
+    const isShared = String(connection.userId) !== String(req.user._id);
 
     return res.status(200).json({
       connected: true,
@@ -46,6 +65,7 @@ const getStatus = async (req, res) => {
       provider: connection.provider || "Email",
       lastSyncedAt: connection.lastSyncedAt,
       status: connection.status,
+      isShared,
     });
   } catch (err) {
     console.error("[getStatus] error:", err.message);
@@ -157,12 +177,9 @@ const oauthCallback = async (req, res) => {
 // POST /api/email/sync -> scans inbox for application emails & processes resume attachments
 const syncApplications = async (req, res) => {
   try {
-    const connection = await EmailConnection.findOne({
-      userId: req.user._id,
-      status: "connected",
-    });
+    const connection = await getEffectiveConnection(req.user._id);
 
-    if (!connection || !connection.grantId) {
+    if (!connection || !connection.grantId || connection.status !== "connected") {
       return res
         .status(400)
         .json({ message: "No connected email account found. Please connect your email account." });

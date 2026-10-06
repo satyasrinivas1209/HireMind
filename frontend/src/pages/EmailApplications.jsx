@@ -211,6 +211,23 @@ export default function EmailApplications() {
                   >
                     <CheckCircle2 size={14} /> Connected
                   </span>
+                  {connection.isShared && (
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        background: "rgba(59, 130, 246, 0.15)",
+                        color: "#3b82f6",
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        padding: "4px 10px",
+                        borderRadius: 20,
+                      }}
+                    >
+                      <ShieldCheck size={14} /> Shared System Inbox
+                    </span>
+                  )}
                   <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
                     Nylas Multi-Provider Integration
                   </span>
