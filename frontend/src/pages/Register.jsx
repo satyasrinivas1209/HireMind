@@ -39,8 +39,12 @@ export default function Register() {
 
     setSubmitting(true);
     try {
-      await register(name, email, password);
-      toast.success("Account created successfully! Please sign in.");
+      const data = await register(name, email, password);
+      if (data?.pendingApproval) {
+        toast.success("Registration submitted! Pending Admin approval.", { duration: 5000 });
+      } else {
+        toast.success("Account created successfully! Please sign in.");
+      }
       navigate("/login");
     } catch (err) {
       const message = err?.response?.data?.message || "Registration failed. Please try again.";

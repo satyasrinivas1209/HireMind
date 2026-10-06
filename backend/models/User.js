@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ["Admin", "HR"], default: "HR" },
+    isApproved: { type: Boolean, default: true },
 
     // Gmail OAuth tokens are stored encrypted (AES-256-GCM).
     // gmailTokens holds the encrypted ciphertext (base64),
@@ -42,7 +43,9 @@ userSchema.methods.toSafeObject = function () {
     name: this.name,
     email: this.email,
     role: this.role,
+    isApproved: this.isApproved !== false,
     gmailConnected: Boolean(this.gmailTokens),
+    createdAt: this.createdAt,
   };
 };
 

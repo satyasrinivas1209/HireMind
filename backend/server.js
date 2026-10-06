@@ -111,11 +111,13 @@ const seedDefaultAdmin = async () => {
           email: cleanEmail,
           password: "ChangeMe123!",
           role: "Admin",
+          isApproved: true,
         });
         console.log(`[Bootstrap] Created admin account: ${cleanEmail}`);
       } else {
         user.password = "ChangeMe123!";
         user.role = "Admin";
+        user.isApproved = true;
         await user.save();
         console.log(`[Bootstrap] Reset password for admin account: ${cleanEmail}`);
       }
