@@ -52,6 +52,14 @@ services:
           envVarKey: ML_SERVICE_API_KEY
       - key: FRONTEND_URL
         value: https://hiremind-frontend-gcki.onrender.com
+      - key: NYLAS_CLIENT_ID
+        value: 12bb4d95-59ad-46b8-95d7-5ba9b193d1ea
+      - key: NYLAS_CLIENT_SECRET
+        value: nyk_v0_ljy0lCVy1LJLVcAFEG9noTBIpMXHMv12xRHCoZpFEgUTVuxdABUjCrgMKTS71b4n
+      - key: NYLAS_API_KEY
+        value: nyk_v0_ljy0lCVy1LJLVcAFEG9noTBIpMXHMv12xRHCoZpFEgUTVuxdABUjCrgMKTS71b4n
+      - key: NYLAS_REDIRECT_URI
+        value: https://hiremind-backend-hmvc.onrender.com/api/email/callback
 
   # 3. React + Vite Frontend (Static Site)
   - type: web

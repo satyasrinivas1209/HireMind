@@ -8,8 +8,21 @@ const EmailConnection = require("../models/EmailConnection");
 const { runParsingPipeline } = require("./resumeController");
 const { UPLOAD_DIR } = require("../middleware/upload");
 
+const DEFAULT_NYLAS_CLIENT_ID = "12bb4d95-59ad-46b8-95d7-5ba9b193d1ea";
+const DEFAULT_NYLAS_API_KEY = "nyk_v0_ljy0lCVy1LJLVcAFEG9noTBIpMXHMv12xRHCoZpFEgUTVuxdABUjCrgMKTS71b4n";
+
+const getNylasClientId = () => process.env.NYLAS_CLIENT_ID || DEFAULT_NYLAS_CLIENT_ID;
+const getNylasApiKey = () => process.env.NYLAS_API_KEY || process.env.NYLAS_CLIENT_SECRET || DEFAULT_NYLAS_API_KEY;
+const getNylasRedirectUri = () => {
+  if (process.env.NYLAS_REDIRECT_URI) return process.env.NYLAS_REDIRECT_URI;
+  if (process.env.NODE_ENV === "production") {
+    return "https://hiremind-backend-hmvc.onrender.com/api/email/callback";
+  }
+  return "http://localhost:5000/api/email/callback";
+};
+
 const getNylasClient = () => {
-  const apiKey = process.env.NYLAS_API_KEY;
+  const apiKey = getNylasApiKey();
   if (!apiKey) {
     throw new Error("NYLAS_API_KEY environment variable is not configured.");
   }
@@ -43,8 +56,8 @@ const getStatus = async (req, res) => {
 // GET /api/email/auth -> starts Nylas Hosted OAuth flow
 const startAuth = async (req, res) => {
   try {
-    const clientId = process.env.NYLAS_CLIENT_ID;
-    const redirectUri = process.env.NYLAS_REDIRECT_URI;
+    const clientId = getNylasClientId();
+    const redirectUri = getNylasRedirectUri();
 
     if (!clientId || !redirectUri) {
       console.error("[startAuth] Missing NYLAS_CLIENT_ID or NYLAS_REDIRECT_URI");
@@ -94,11 +107,13 @@ const oauthCallback = async (req, res) => {
     }
 
     const nylas = getNylasClient();
-    const clientSecret = process.env.NYLAS_CLIENT_SECRET || process.env.NYLAS_API_KEY;
+    const clientSecret = getNylasApiKey();
+    const clientId = getNylasClientId();
+    const redirectUri = getNylasRedirectUri();
     const response = await nylas.auth.exchangeCodeForToken({
       clientSecret,
-      clientId: process.env.NYLAS_CLIENT_ID,
-      redirectUri: process.env.NYLAS_REDIRECT_URI,
+      clientId,
+      redirectUri,
       code,
     });
 
