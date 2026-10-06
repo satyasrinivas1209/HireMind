@@ -4,12 +4,14 @@ import { Brain, Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login() {
-  const { user, login, loading } = useAuth();
+export default function Register() {
+  const { user, register, loading } = useAuth();
   const navigate = useNavigate();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -20,18 +22,28 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Please enter both email and password.");
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     setSubmitting(true);
     try {
-      await login(email, password);
-      toast.success("Welcome back!");
-      navigate("/");
+      await register(name, email, password);
+      toast.success("Account created successfully! Please sign in.");
+      navigate("/login");
     } catch (err) {
-      const message = err?.response?.data?.message || "Login failed. Please try again.";
+      const message = err?.response?.data?.message || "Registration failed. Please try again.";
       setError(message);
     } finally {
       setSubmitting(false);
@@ -49,8 +61,8 @@ export default function Login() {
         padding: 16,
       }}
     >
-      <div className="card" style={{ width: "100%", maxWidth: 400, padding: 36 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
+      <div className="card" style={{ width: "100%", maxWidth: 420, padding: 36 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
           <div
             style={{
               width: 52,
@@ -65,15 +77,27 @@ export default function Login() {
           >
             <Brain size={26} color="#fff" />
           </div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>HireMind</h1>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Create an Account</h1>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--text-secondary)", textAlign: "center" }}>
-            AI-Driven Talent Intelligence &amp; Workforce Analytics
+            Join HireMind Talent Intelligence Platform
           </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Email</label>
+            <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Full Name</label>
+            <input
+              type="text"
+              className="input"
+              placeholder="Sarah Connor"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Email Address</label>
             <input
               type="email"
               className="input"
@@ -90,10 +114,10 @@ export default function Login() {
               <input
                 type={showPassword ? "text" : "password"}
                 className="input"
-                placeholder="••••••••"
+                placeholder="At least 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
+                autoComplete="new-password"
                 style={{ paddingRight: 40 }}
               />
               <button
@@ -115,6 +139,18 @@ export default function Login() {
             </div>
           </div>
 
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, display: "block", marginBottom: 6 }}>Confirm Password</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              className="input"
+              placeholder="Re-enter password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
+
           {error && (
             <div style={{ fontSize: 13, color: "var(--danger)", background: "rgba(239,68,68,0.1)", padding: "8px 12px", borderRadius: 8 }}>
               {error}
@@ -124,18 +160,18 @@ export default function Login() {
           <button type="submit" className="btn btn-primary" disabled={submitting} style={{ marginTop: 6 }}>
             {submitting ? (
               <>
-                <Loader2 size={16} className="spin" /> Signing in…
+                <Loader2 size={16} className="spin" /> Creating Account…
               </>
             ) : (
-              "Secure Sign In"
+              "Create Account"
             )}
           </button>
         </form>
 
         <div style={{ marginTop: 20, textAlign: "center", fontSize: 13.5, color: "var(--text-secondary)" }}>
-          Don&apos;t have an account?{" "}
-          <Link to="/register" style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
-            Sign Up
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
+            Sign In
           </Link>
         </div>
       </div>

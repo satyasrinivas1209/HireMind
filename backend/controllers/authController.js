@@ -2,8 +2,6 @@ const User = require("../models/User");
 const { generateToken, setAuthCookie, clearAuthCookie } = require("../utils/generateToken");
 
 // POST /api/auth/register
-// Public registration is limited to the first bootstrap account. Additional
-// accounts must be provisioned by an authenticated administration workflow.
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -16,37 +14,34 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Name must be between 2 and 100 characters." });
     }
 
-    if (typeof email !== "string" || !/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
+    const cleanEmail = String(email).trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(cleanEmail) || cleanEmail.length > 254) {
       return res.status(400).json({ message: "Please provide a valid email address." });
     }
 
     if (typeof password !== "string" || password.length < 8 || password.length > 128) {
-      return res.status(400).json({ message: "Password must be between 8 and 128 characters." });
+      return res.status(400).json({ message: "Password must be at least 8 characters long." });
     }
 
-    const accountCount = await User.countDocuments();
-    if (accountCount > 0) {
-      return res.status(403).json({
-        message: "Public registration is disabled. Ask an Admin to provision your account.",
-      });
-    }
-
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const existing = await User.findOne({ email: cleanEmail });
     if (existing) {
       return res.status(409).json({ message: "An account with this email already exists." });
     }
 
+    const accountCount = await User.countDocuments();
+    const role = accountCount === 0 ? "Admin" : "HR";
+
     const user = await User.create({
-      name,
-      email: email.toLowerCase(),
+      name: name.trim(),
+      email: cleanEmail,
       password,
-      role: "Admin",
+      role,
     });
 
     const token = generateToken(user);
     setAuthCookie(res, token);
 
-    return res.status(201).json({ user: user.toSafeObject(), token });
+    return res.status(201).json({ user: user.toSafeObject(), token, message: "Account created successfully!" });
   } catch (err) {
     console.error("[register] error:", err.message);
     return res.status(500).json({ message: "Could not create account. Please try again." });

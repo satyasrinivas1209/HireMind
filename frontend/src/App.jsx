@@ -4,6 +4,7 @@ import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Jobs from "./pages/Jobs";
 import Candidates from "./pages/Candidates";
@@ -20,12 +21,20 @@ function LoginGate() {
   return <Login />;
 }
 
+function RegisterGate() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/" replace />;
+  return <Register />;
+}
+
 export default function App() {
   return (
     <>
       <Toaster position="top-right" toastOptions={{ style: { fontSize: 13.5 } }} />
       <Routes>
         <Route path="/login" element={<LoginGate />} />
+        <Route path="/register" element={<RegisterGate />} />
 
         <Route
           path="/"
