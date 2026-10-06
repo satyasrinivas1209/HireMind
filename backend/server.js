@@ -103,15 +103,21 @@ const seedDefaultAdmin = async () => {
   try {
     const adminEmails = ["satyasrinivas726@gmail.com", "admin@hiremind.com"];
     for (const email of adminEmails) {
-      const existingAdmin = await User.findOne({ email });
-      if (!existingAdmin) {
+      const cleanEmail = email.toLowerCase().trim();
+      let user = await User.findOne({ email: cleanEmail });
+      if (!user) {
         await User.create({
           name: "Satya Srinivas Admin",
-          email,
+          email: cleanEmail,
           password: "ChangeMe123!",
           role: "Admin",
         });
-        console.log(`[Bootstrap] Created admin account: ${email}`);
+        console.log(`[Bootstrap] Created admin account: ${cleanEmail}`);
+      } else {
+        user.password = "ChangeMe123!";
+        user.role = "Admin";
+        await user.save();
+        console.log(`[Bootstrap] Reset password for admin account: ${cleanEmail}`);
       }
     }
   } catch (err) {
