@@ -24,6 +24,15 @@ const api = axios.create({
   withCredentials: true, // sends the HTTP-only auth cookie
 });
 
+// Attach stored auth token to headers for cross-site browser compatibility
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("hiremind_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Automatic handling of HTTP 401: bounce the user back to /login (except on the
 // login/register calls themselves, where a 401 is just "wrong credentials").
 api.interceptors.response.use(

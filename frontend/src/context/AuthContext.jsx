@@ -24,6 +24,9 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
+    if (data.token) {
+      localStorage.setItem("hiremind_token", data.token);
+    }
     setUser(data.user);
     return data.user;
   };
@@ -32,6 +35,7 @@ export function AuthProvider({ children }) {
     try {
       await api.post("/auth/logout");
     } finally {
+      localStorage.removeItem("hiremind_token");
       setUser(null);
     }
   };

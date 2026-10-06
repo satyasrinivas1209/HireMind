@@ -46,7 +46,7 @@ const register = async (req, res) => {
     const token = generateToken(user);
     setAuthCookie(res, token);
 
-    return res.status(201).json({ user: user.toSafeObject() });
+    return res.status(201).json({ user: user.toSafeObject(), token });
   } catch (err) {
     console.error("[register] error:", err.message);
     return res.status(500).json({ message: "Could not create account. Please try again." });
@@ -75,7 +75,7 @@ const login = async (req, res) => {
     const token = generateToken(user);
     setAuthCookie(res, token);
 
-    return res.status(200).json({ user: user.toSafeObject() });
+    return res.status(200).json({ user: user.toSafeObject(), token });
   } catch (err) {
     console.error("[login] error:", err.message);
     return res.status(500).json({ message: "Login failed. Please try again." });

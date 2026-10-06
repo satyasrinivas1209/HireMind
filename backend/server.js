@@ -101,16 +101,18 @@ const User = require("./models/User");
 
 const seedDefaultAdmin = async () => {
   try {
-    const adminEmail = "satyasrinivas726@gmail.com";
-    const existingAdmin = await User.findOne({ email: adminEmail });
-    if (!existingAdmin) {
-      await User.create({
-        name: "Satya Srinivas Admin",
-        email: adminEmail,
-        password: "ChangeMe123!",
-        role: "Admin",
-      });
-      console.log(`[Bootstrap] Created default admin account: ${adminEmail}`);
+    const adminEmails = ["satyasrinivas726@gmail.com", "admin@hiremind.com"];
+    for (const email of adminEmails) {
+      const existingAdmin = await User.findOne({ email });
+      if (!existingAdmin) {
+        await User.create({
+          name: "Satya Srinivas Admin",
+          email,
+          password: "ChangeMe123!",
+          role: "Admin",
+        });
+        console.log(`[Bootstrap] Created admin account: ${email}`);
+      }
     }
   } catch (err) {
     console.error("[Bootstrap] Error checking/creating default admin:", err.message);
