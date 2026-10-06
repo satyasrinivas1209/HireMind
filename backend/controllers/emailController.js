@@ -81,8 +81,16 @@ const startAuth = async (req, res) => {
 };
 
 const getFrontendUrl = () => {
-  let url = process.env.FRONTEND_URL || "http://localhost:5173";
+  let url = process.env.FRONTEND_URL;
+  if (!url) {
+    url = process.env.NODE_ENV === "production"
+      ? "https://hiremind-frontend-gcki.onrender.com"
+      : "http://localhost:5173";
+  }
   url = url.trim().replace(/\/+$/, "");
+  if (!url.includes(".")) {
+    url = `${url}.onrender.com`;
+  }
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     url = "https://" + url;
   }
@@ -141,7 +149,7 @@ const oauthCallback = async (req, res) => {
     return res.redirect(`${frontendUrl}/email-applications?connected=true`);
   } catch (err) {
     console.error("[oauthCallback] error:", err.message);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendUrl = getFrontendUrl();
     return res.redirect(`${frontendUrl}/email-applications?error=1`);
   }
 };
