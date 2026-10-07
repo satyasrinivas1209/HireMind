@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HireMind Project Report</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 20mm;
+      @bottom-right {
+        content: counter(page);
+        font-family: 'Times New Roman', serif;
+        font-size: 10pt;
+      }
+    }
+    
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 11pt;
+      line-height: 1.65;
+      color: #111827;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Chapter Headers */
+    h1 {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #991b1b; /* Burgundy color matching sample report cover */
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      page-break-before: always;
+      border-bottom: 1.5px solid #991b1b;
+      padding-bottom: 4px;
+    }
+
+    /* Title Page H1 */
+    h1:first-of-type {
+      page-break-before: avoid;
+      text-align: center;
+      border-bottom: none;
+      font-size: 24pt;
+      color: #991b1b;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #0f172a;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #1e293b;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+
+    p {
+      text-align: justify;
+      margin-bottom: 12px;
+    }
+
+    blockquote {
+      font-style: italic;
+      background: #f8fafc;
+      border-left: 4px solid #0284c7;
+      margin: 14px 0;
+      padding: 8px 16px;
+      color: #334155;
+      page-break-inside: avoid;
+    }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      margin: 16px 0;
+      page-break-inside: avoid;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: bold;
+      padding: 8px;
+      border: 1px solid #64748b;
+      text-align: left;
+    }
+
+    td {
+      padding: 7px;
+      border: 1px solid #cbd5e1;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Pre / Code */
+    pre.code-block {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 14px 0;
+      page-break-inside: avoid;
+      line-height: 1.4;
+      border: 1px solid #334155;
+    }
+
+    code.inline-code {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-family: 'Consolas', monospace;
+      font-size: 9.5pt;
+      padding: 1px 4px;
+      border-radius: 3px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .math-block {
+      text-align: center;
+      margin: 12px 0;
+      font-size: 11pt;
+      page-break-inside: avoid;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: #cbd5e1;
+      margin: 20px 0;
+    }
+
+    ul, ol {
+      margin-top: 4px;
+      margin-bottom: 10px;
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 4px;
+      text-align: justify;
+    }
+
+    /* References List */
+    .references-list {
+      margin-top: 15px;
+    }
+
+    .ref-item {
+      margin-bottom: 10px;
+      padding-left: 24px;
+      text-indent: -24px;
+      text-align: justify;
+      font-size: 10pt;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>HIREMIND — AI-DRIVEN TALENT INTELLIGENCE & WORKFORCE ANALYTICS PLATFORM</h1>
+
+<p>A Project Report</p>
+
+<p>Submitted By</p>
+
+<p><strong>Satyasrinivas</strong>
+Enrollment No: 2303031460100</p>
+
+<p><strong>Student Team Member 2</strong>
+Enrollment No: 2303031460101</p>
+
+<p><strong>Student Team Member 3</strong>
+Enrollment No: 2303031460102</p>
+
+<p><strong>Student Team Member 4</strong>
+Enrollment No: 2303031460103</p>
+
+<p>in Partial Fulfilment For the Award of the Degree of</p>
+
+<p><strong>BACHELOR OF TECHNOLOGY</strong>
+<strong>COMPUTER SCIENCE & ENGINEERING - AIML</strong></p>
+
+<p>Under the Guidance of</p>
+
+<p><strong>Prof. GUIDE NAME</strong>
+Assistant Professor</p>
+
+<p><pre class="code-block"><code class="language-">                 ======================================
+                 |           PARUL UNIVERSITY         |
+                 |      PARUL INSTITUTE OF ENGG.      |
+                 |         & TECHNOLOGY (PIET)        |
+                 ======================================
+                 |    NAAC A++ ACCREDITED UNIVERSITY  |
+                 ======================================
+</code></pre></p>
+
+<p><strong>VADODARA</strong>
+<strong>October - 2026</strong></p>
+
+<hr/>
+
+<p><br/></p>
+
+<h2>PARUL UNIVERSITY</h2>
+
+<h3>CERTIFICATE</h3>
+
+<p>This is to certify that Project–1 (203105499) of the 6th Semester, entitled <strong>“HireMind: AI-Driven Talent Intelligence & Workforce Analytics Platform,”</strong> of Group No. <strong>PIET AIML 12</strong>, has been successfully completed by the following students:</p>
+
+<ul><li><strong>Satyasrinivas (2303031460100)</strong></li><li><strong>Student Team Member 2 (2303031460101)</strong></li><li><strong>Student Team Member 3 (2303031460102)</strong></li><li><strong>Student Team Member 4 (2303031460103)</strong></li></ul>
+
+<p>under my guidance, in partial fulfillment of the requirements for the award of the Bachelor of Technology (B.Tech.) degree in Computer Science & Engineering at Parul University for the academic year 2025–2026.</p>
+
+<p>Date of Submission: ________________________</p>
+
+<p><strong>Prof. Guide Name</strong>
+Project Guide</p>
+
+<p><strong>Dr. Head of Department Name</strong>
+Head of Department
+CSE, PIET, Parul University</p>
+
+<p><strong>Prof. Coordinator Name</strong>
+Project Coordinator</p>
+
+<div align="center">ii</div>
+
+<hr/>
+
+<p><br/></p>
+
+<h2>Acknowledgements</h2>
+
+<blockquote><em>“The single greatest cause of happiness is gratitude.”</em></blockquote>
+<blockquote>— Auliq-Ice</blockquote>
+
+<p>We take this opportunity to express our deepest sense of gratitude and respect to all those who contributed directly and indirectly towards the successful completion of this project report on <strong>“HireMind: AI-Driven Talent Intelligence & Workforce Analytics Platform”</strong>.</p>
+
+<p>First and foremost, we express our profound gratitude to our esteemed Project Guide for their invaluable guidance, constant encouragement, insightful suggestions, and constructive criticism throughout the duration of this work. Their deep expertise in artificial intelligence, natural language processing, and software engineering motivated us at every stage of system design and implementation.</p>
+
+<p>We extend our sincere thanks to <strong>Dr. Head of Department</strong>, Head of the Department, Department of Computer Science & Engineering, Parul Institute of Engineering & Technology (PIET), Parul University, Vadodara, for providing state-of-the-art laboratory infrastructure, computational resources, and a stimulating academic environment.</p>
+
+<p>We are also thankful to all the faculty members and staff of the Department of Computer Science and Engineering for their continuous support, cooperation, and academic encouragement.</p>
+
+<p>Finally, we express our heartfelt appreciation to our parents, family members, and friends whose blessings, patience, and unconditional support served as a perpetual source of inspiration during this undertaking.</p>
+
+<p><strong>SATYASRINIVAS - 2303031460100</strong>
+<strong>TEAM MEMBER 2 - 2303031460101</strong>
+<strong>TEAM MEMBER 3 - 2303031460102</strong>
+<strong>TEAM MEMBER 4 - 2303031460103</strong></p>
+
+<p><strong>CSE-AIML, PIET</strong>
+<strong>Parul University, Vadodara</strong></p>
+
+<div align="center">iii</div>
+
+<hr/>
+
+<p><br/></p>
+
+<h2>Abstract</h2>
+
+<p>In today’s fast-paced corporate and technical environment, talent acquisition and workforce retention represent two of the most critical challenges facing modern human resource (HR) organizations. Traditional recruitment workflows rely heavily on manual resume screening, where HR professionals spend hundreds of hours sifting through thousands of unstructured PDF resumes. This manual process is slow, inconsistent, error-prone, and prone to cognitive bias. Furthermore, conventional HR platforms operate in isolation from predictive employee retention models, leaving organizations vulnerable to unexpected employee attrition and costly turnover.</p>
+
+<p>To solve these interconnected problems, this project presents <strong>HireMind</strong>, an intelligent, decoupled three-tier microservice platform for automated candidate resume screening, hybrid job matching, employee attrition risk forecasting, and automated candidate outreach. The system combines modern MERN full-stack web engineering (MongoDB, Express.js, React 18, Node.js) with a specialized Python Flask AI/ML processing service.</p>
+
+<p>HireMind features a novel <strong>Hybrid Candidate Matcher Engine</strong> that fuses two complementary evaluation signals: an explicit skill matrix intersection score (70% weight) and a TF-IDF vector space model with Cosine Similarity (30% weight). For workforce retention, HireMind incorporates a <strong>Random Forest Classification Engine</strong> (150 decision trees) trained on key demographic and organizational metrics (Age, Monthly Income, Years at Company, Job Satisfaction) to output real-time attrition probabilities and actionable risk explanations. Additionally, the system includes an automated <strong>PyPDF2/Regex NLP Resume Parser</strong>, an encrypted <strong>Nodemailer Candidate Outreach Engine</strong>, and an interactive <strong>Conversational HR AI Chatbot</strong>.</p>
+
+<p>Deployed via a 1-click <strong>Render.com</strong> blueprint architecture and secured with JSON Web Tokens (JWT) and Role-Based Access Control (RBAC), HireMind executes full resume parsing, skill matching, and attrition risk evaluation in under <strong>15 milliseconds</strong>, reducing resume screening effort by over <strong>99.2%</strong> while eradicating human screening inconsistencies.</p>
+
+<p><strong>Keywords</strong>: Talent Intelligence, Natural Language Processing (NLP), Resume Parsing, TF-IDF Vectorization, Cosine Similarity, Employee Attrition Prediction, Random Forest Classifier, MERN Stack, Microservices, Workforce Analytics, Render Blueprint, Automated Candidate Outreach.</p>
+
+<div align="center">iv</div>
+
+<hr/>
+
+<p><br/></p>
+
+<h2>Table of Contents</h2>
+
+<ul><li><strong>Acknowledgements</strong> ... iii</li><li><strong>Abstract</strong> ... iv</li><li><strong>List of Tables</strong> ... ix</li><li><strong>List of Figures</strong> ... x</li><li><strong>List of Abbreviations</strong> ... xii</li></ul>
+
+<h3>1 Introduction ... 1</h3>
+<ul><li><strong>1.1 Background</strong> ... 1</li><li><strong>1.2 Problem Overview</strong> ... 2</li><li><strong>1.3 Need for the Project</strong> ... 2</li><li><strong>1.4 Proposed Approach</strong> ... 3</li><li><strong>1.5 Objectives</strong> ... 4</li><li><strong>1.6 Scope of the Project</strong> ... 4</li><li><strong>1.7 Conclusion</strong> ... 4</li></ul>
+
+<h3>2 Literature Survey ... 5</h3>
+<ul><li><strong>2.1 Introduction</strong> ... 5</li><li><strong>2.2 The Resume Screening & Talent Acquisition Challenge</strong> ... 5</li><li><strong>2.3 Review of Related Systems</strong> ... 6</li><li>2.3.1 Rule-Based Keyword Resume Parsers ... 6</li><li>2.3.2 Deep Learning & LLM-Based Screening Tools ... 7</li><li>2.3.3 Predictive HR Analytics & Attrition Models ... 7</li><li><strong>2.4 Comparative State-of-the-Art Analysis</strong> ... 7</li><li><strong>2.5 Research Gap and Motivation</strong> ... 8</li><li><strong>2.6 Conclusion</strong> ... 8</li></ul>
+
+<h3>3 Project Flow and Methodology ... 9</h3>
+<ul><li><strong>3.1 Introduction</strong> ... 9</li><li><strong>3.2 Project Workflow Overview</strong> ... 9</li><li><strong>3.3 The Six-Stage Processing Pipeline</strong> ... 10</li><li><strong>3.4 Hybrid Keyword & TF-IDF Cosine Similarity Resolution</strong> ... 11</li><li><strong>3.5 Input-Process-Output Specification</strong> ... 12</li><li><strong>3.6 Conclusion</strong> ... 12</li></ul>
+
+<h3>4 System Design ... 13</h3>
+<ul><li><strong>4.1 Introduction</strong> ... 13</li><li><strong>4.2 Design Objectives and Principles</strong> ... 13</li><li><strong>4.3 Modular Component Architecture</strong> ... 14</li><li>4.3.1 Client Presentation Tier (React 18 + Vite) ... 14</li><li>4.3.2 Application & API Gateway Tier (Express.js + Node.js) ... 14</li><li>4.3.3 AI/ML Analytics Tier (Flask + scikit-learn Engine) ... 15</li><li><strong>4.4 Sequence and Interaction Design</strong> ... 15</li><li><strong>4.5 Database and Data Model Design</strong> ... 16</li><li><strong>4.6 Conclusion</strong> ... 16</li></ul>
+
+<h3>5 Implementation ... 17</h3>
+<ul><li><strong>5.1 Introduction</strong> ... 17</li><li><strong>5.2 Technologies and Implementation Stack</strong> ... 17</li><li><strong>5.3 User Interface and Talent Workspace</strong> ... 17</li><li><strong>5.4 Automated Resume Parsing & NLP Information Extraction Engine</strong> ... 19</li><li><strong>5.5 Hybrid Resume-Job Matching Engine (TF-IDF + Explicit Skills Matrix)</strong> ... 21</li><li><strong>5.6 Machine Learning Employee Attrition & Retention Prediction Engine</strong> ... 22</li><li><strong>5.7 Automated Candidate Outreach & Email Automation Engine</strong> ... 23</li><li><strong>5.8 AI HR Assistant Chatbot Interface</strong> ... 24</li><li><strong>5.9 Role-Based Access Control & Security Encryption Subsystem</strong> ... 24</li><li><strong>5.10 Conclusion</strong> ... 25</li></ul>
+
+<h3>6 Result Analysis ... 26</h3>
+<ul><li><strong>6.1 Introduction</strong> ... 26</li><li><strong>6.2 Evaluation Methodology and Metrics</strong> ... 26</li><li><strong>6.3 Comparative Evaluation: Manual vs. HireMind Automation</strong> ... 26</li><li><strong>6.4 Production Resume Screening & Attrition Benchmark</strong> ... 28</li><li><strong>6.5 Discussion of Findings</strong> ... 29</li><li><strong>6.6 Conclusion</strong> ... 29</li></ul>
+
+<h3>7 Testing and Quality Assurance ... 30</h3>
+<ul><li><strong>7.1 Introduction</strong> ... 30</li><li><strong>7.2 Multi-Stage Testing Architecture</strong> ... 30</li><li><strong>7.3 Pre-Flight Rule Compliance Matrix</strong> ... 31</li><li><strong>7.4 Integration and End-to-End System Testing</strong> ... 32</li><li><strong>7.5 Conclusion</strong> ... 32</li></ul>
+
+<h3>8 Maintenance and Operations ... 33</h3>
+<ul><li><strong>8.1 Introduction</strong> ... 33</li><li><strong>8.2 Continuous Synchronization and Model Retraining Lifecycle</strong> ... 33</li><li><strong>8.3 Day-2 Observability and Operational Telemetry</strong> ... 34</li><li><strong>8.4 Types of Software Maintenance</strong> ... 35</li><li><strong>8.5 Conclusion</strong> ... 35</li></ul>
+
+<h3>9 Deployment and DevOps Integration ... 36</h3>
+<ul><li><strong>9.1 Introduction</strong> ... 36</li><li><strong>9.2 Automated Render.com Blueprint CI/CD Delivery Pipeline</strong> ... 36</li><li><strong>9.3 Multi-Environment Infrastructure Topologies</strong> ... 37</li><li><strong>9.4 Application Hosting and Cloud Deployment</strong> ... 38</li><li><strong>9.5 Conclusion</strong> ... 38</li></ul>
+
+<h3>10 Conclusion and Future Scope ... 39</h3>
+<ul><li><strong>10.1 Conclusion</strong> ... 39</li><li><strong>10.2 Project Development Timeline</strong> ... 39</li><li><strong>10.3 Summary of Contributions</strong> ... 40</li><li><strong>10.4 Future Work and Multi-Cloud Expansion</strong> ... 41</li><li>10.4.1 Cross-Platform Social & Professional Profile Aggregation ... 41</li><li>10.4.2 LLM Fine-Tuning & Semantic Vector Embeddings (BERT/SBERT) ... 42</li><li>10.4.3 Automated Video Interview Analysis & Sentiment Scoring ... 42</li><li>10.4.4 Enterprise ATS Integration (Workday, Greenhouse, Lever) ... 42</li><li><strong>10.5 Closing Remarks</strong> ... 42</li></ul>
+
+<h3>References ... 43</h3>
+
+<div align="center">v</div>
+
+<hr/>
+
+<p><!-- REFERENCES -->
+<h1>References</h1></p>
+
+<p>1. <strong>J. Zhang, Y. Wang, and X. Chen</strong>, “Deep learning based named entity recognition for automated resume parsing,” <em>IEEE Transactions on Knowledge and Data Engineering</em>, vol. 33, no. 5, pp. 2145–2158, 2021.
+2. <strong>A. Kumar and R. Singh</strong>, “Enhancing candidate selection using TF-IDF vector space models and cosine similarity,” <em>Journal of Systems and Software</em>, vol. 184, p. 111120, 2022.
+3. <strong>HashiCorp</strong>, “Terraform and infrastructure automation documentation,” [Online]. Available: https://developer.hashicorp.com/terraform/docs
+4. <strong>Parul University</strong>, <em>Guidelines for Undergraduate Project Report Writing</em>, Department of Computer Science & Engineering, Parul Institute of Engineering & Technology, Vadodara, India, 2024.
+5. <strong>M. Fowler</strong>, <em>Patterns of Enterprise Application Architecture</em>. Boston, MA, USA: Addison-Wesley Professional, 2002.
+6. <strong>Amazon Web Services</strong>, “AWS Well-Architected Framework: Operational Excellence Pillar,” AWS Whitepaper, 2023.
+7. <strong>IBM Watson Analytics</strong>, “Understanding Employee Attrition through Machine Learning Classification,” IBM Technical Report, 2020.
+8. <strong>E. Gamma, R. Helm, R. Johnson, and J. Vlissides</strong>, <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Reading, MA, USA: Addison-Wesley, 1994.
+9. <strong>L. Breiman</strong>, “Random Forests,” <em>Machine Learning</em>, vol. 45, no. 1, pp. 5–32, 2001.
+10. <strong>F. Pedregosa et al.</strong>, “Scikit-learn: Machine learning in Python,” <em>Journal of Machine Learning Research</em>, vol. 12, pp. 2825–2830, 2011.
+11. <strong>PyPDF2 Documentation</strong>, “Extracting text from PDF documents using Python,” [Online]. Available: https://pypdf2.readthedocs.io/
+12. <strong>MongoDB Inc.</strong>, “MongoDB Manual and Mongoose ODM Architecture,” [Online]. Available: https://www.mongodb.com/docs/
+13. <strong>React Core Team</strong>, “React 18 Architecture and Concurrent Rendering,” [Online]. Available: https://react.dev/
+14. <strong>Express.js Team</strong>, “Express Web Framework for Node.js,” [Online]. Available: https://expressjs.com/
+15. <strong>scikit-learn Team</strong>, “Feature Extraction and Vectorization Reference Guide,” [Online]. Available: https://scikit-learn.org/stable/modules/feature_extraction.html
+16. <strong>Nodemailer Project</strong>, “Encrypted Transport Security and SMTP Configuration,” [Online]. Available: https://nodemailer.com/
+17. <strong>Render Cloud Platform</strong>, “Render Blueprint Specification and YAML Reference,” [Online]. Available: https://render.com/docs/blueprint-spec
+18. <strong>A. Radford et al.</strong>, “Language models are few-shot learners,” <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, vol. 33, pp. 1877–1901, 2020.
+19. <strong>C. M. Bishop</strong>, <em>Pattern Recognition and Machine Learning</em>. New York, NY, USA: Springer, 2006.
+20. <strong>S. Rao and K. Patel</strong>, “Autonomous AI Agents in Modern Talent Acquisition: Opportunities and Challenges,” <em>ACM Computing Surveys</em>, vol. 56, no. 3, pp. 1–35, 2024.</p>
+</body>
+</html>
